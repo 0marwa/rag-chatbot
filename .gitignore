@@ -21,3 +21,6 @@ data/*
 
 # claude agent + local config, keep out of the repo
 .claude/
+
+# local project tracker, not for the public repo
+MEMORY.md
