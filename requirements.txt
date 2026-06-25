@@ -1,0 +1,11 @@
+# llm providers (add more as you need them)
+groq
+
+# embeddings (local, free, no key)
+sentence-transformers
+
+# vector store
+chromadb
+
+# config
+python-dotenv

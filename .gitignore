@@ -1,0 +1,20 @@
+# env + secrets
+.env
+
+# python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+
+# chroma / vector store data
+chroma_db/
+*.sqlite3
+
+# your actual documents (keep the folder, ignore the contents)
+data/*
+!data/.gitkeep
+
+# os junk
+.DS_Store
