@@ -82,6 +82,7 @@ data/           drop your context docs here
 
 ## roadmap
 
+- [x] config (load .env, pick providers, hold settings)
 - [ ] provider interfaces (llm + embeddings)
 - [ ] ingest pipeline (load, chunk, embed, store)
 - [ ] retrieval + answer with sources
