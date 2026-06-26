@@ -84,7 +84,7 @@ data/           drop your context docs here
 
 - [x] config (load .env, pick providers, hold settings)
 - [x] llm provider (groq, swappable, answers from context only)
-- [ ] embedding provider (local sentence-transformers)
+- [x] embedding provider (local sentence-transformers, swappable)
 - [ ] ingest pipeline (load, chunk, embed, store)
 - [ ] retrieval + answer with sources
 - [ ] cli with debug mode
