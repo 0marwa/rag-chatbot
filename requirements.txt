@@ -9,3 +9,7 @@ chromadb
 
 # config
 python-dotenv
+
+# api
+fastapi
+uvicorn[standard]
