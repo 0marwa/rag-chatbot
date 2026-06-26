@@ -21,3 +21,5 @@ data/*
 
 # claude agent + local config, keep out of the repo
 .claude/
+CLAUDE.md
+MEMORY.md
