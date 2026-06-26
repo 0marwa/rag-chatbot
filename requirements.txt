@@ -13,3 +13,4 @@ python-dotenv
 # api
 fastapi
 uvicorn[standard]
+python-multipart
