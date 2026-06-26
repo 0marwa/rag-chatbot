@@ -87,8 +87,7 @@ data/           drop your context docs here
 - [x] embedding provider (local sentence-transformers, swappable)
 - [x] vector store (chroma, persists to disk, cosine similarity search)
 - [x] loader (reads txt/md from data/) + chunker (overlapping chunks from config)
-- [ ] ingest pipeline (load, chunk, embed, store)
-- [ ] retrieval + answer with sources
+- [x] rag pipeline (ingest: load, chunk, embed, store / ask: retrieve top-k, inject context, return answer + sources)
 - [ ] cli with debug mode
 - [ ] fastapi layer
 - [ ] react + next.js frontend
