@@ -1,50 +1,43 @@
-# rag-chatbot
+## rag-chatbot
 
-a little rag chatbot skeleton. you feed it some documents, it answers questions using only those documents. that's the whole vibe. no making stuff up, no "well actually" from the void, just answers grounded in what you gave it.
+little rag chatbot skeleton. feed it some documents & it answers questions using only those. no hallucinations.
 
-think of it like giving someone a stack of notes and saying "only answer from these". if it's not in the notes, the bot says it doesn't know instead of hallucinating nonsense.
+### retrieval augmented generation workflow
 
-## what is rag anyway
-
-rag = retrieval augmented generation. fancy words for a simple idea:
-
-1. take your docs, chop them into chunks
-2. turn each chunk into a vector (a list of numbers that captures its meaning)
-3. shove those vectors in a little database
+1. chop the given docs into chunks
+2. turn each chunk into a vector (a list of numbers to capture its meaning)
+3. store vectors in database
 4. when you ask a question, turn the question into a vector too
-5. grab the chunks closest to your question
-6. paste those chunks into the prompt and let the llm answer using only them
+5. grab the chunks closest to your question within given threshold
+6. paste resulting chunks into the prompt and let the llm answer using only them
 
-so the model never answers from its own memory. it only sees the chunks we hand it. that's the trick to keeping it honest.
+### why it doesn't hallucinate (in theory)
 
-## why it doesn't hallucinate (in theory)
+good retrieval. if the right chunk never gets pulled, the model has nothing to work with and starts filling gaps on its own. so this skeleton leans hard on:
 
-the secret sauce isn't a strict prompt. it's good retrieval. if the right chunk never gets pulled, the model has nothing to work with and starts filling gaps on its own. so this skeleton leans hard on:
-
-- showing you the retrieved chunks (debug mode) so you can actually see what the model saw
+- showing the retrieved chunks (debug mode) so you can actually see what the model saw
 - a similarity threshold so junk matches get dropped
 - returning sources with every answer
-- zero internet access for the model. its only world is the chunks
+- zero internet access for the model 
 
-## stack
+### stack
 
 - python
 - groq for the llm by default (free tier is solid and fast). swappable though
-- local embeddings via sentence-transformers (free, no api key, stays on your machine)
-- chroma for the vector store (lives on disk, no server to babysit)
-- cli first. react + next.js ui and an api come later
+- local embeddings via sentence-transformers (free, no api key, local)
+- chroma for the vector store (lives on disk, no server)
+- fastapi for the api layer (POST /ingest, POST /ask)
+- cli first. react + next.js ui comes later
 
-## swapping models
+### swapping models
 
-the whole point is you're not locked in. the llm and the embeddings are two separate swappable layers, so you can mix and match.
+the llm and the embeddings are two separate swappable layers -> mix & match possible
 
 - pick your provider in the config
-- drop your api key in a `.env` file
+- drop api key in a `.env` file
 - run it
 
-no code changes needed. wanna use openai instead of groq? cool. wanna run everything local with ollama? also cool. you bring the key, it works.
-
-## getting started
+### setup
 
 ```bash
 # clone it
@@ -69,9 +62,14 @@ python -m src.cli chat
 
 # want to see what chunks the model actually saw?
 python -m src.cli chat --debug
+
+# or run the api
+uvicorn src.api:app --reload
+# POST /ingest  -> ingests docs from data/
+# POST /ask     -> body: {"question": "your question"}
 ```
 
-## structure
+### structure
 
 ```
 src/
@@ -83,10 +81,11 @@ src/
   llm.py        talk to the llm (swappable provider)
   rag.py        ties it all together: ingest docs + answer questions
   cli.py        terminal chat to test it out
+  api.py        fastapi app (POST /ingest, POST /ask)
 data/           drop your context docs here
 ```
 
-## roadmap
+### roadmap
 
 - [x] config (load .env, pick providers, hold settings)
 - [x] llm provider (groq, swappable, answers from context only)
@@ -95,9 +94,9 @@ data/           drop your context docs here
 - [x] loader (reads txt/md from data/) + chunker (overlapping chunks from config)
 - [x] rag pipeline (ingest: load, chunk, embed, store / ask: retrieve top-k, inject context, return answer + sources)
 - [x] cli (ingest command + chat loop with --debug flag)
-- [ ] fastapi layer
+- [x] fastapi layer (POST /ingest, POST /ask)
 - [ ] react + next.js frontend
 
-## notes
+### notes
 
-this is a skeleton, not a production thing. it's meant to be easy to read and easy to extend. if something feels overengineered, it probably is, call it out.
+this is a skeleton, not a prod-ready thingie :p 
