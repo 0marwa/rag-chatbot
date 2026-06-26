@@ -86,6 +86,7 @@ data/           drop your context docs here
 - [x] llm provider (groq, swappable, answers from context only)
 - [x] embedding provider (local sentence-transformers, swappable)
 - [x] vector store (chroma, persists to disk, cosine similarity search)
+- [x] loader (reads txt/md from data/) + chunker (overlapping chunks from config)
 - [ ] ingest pipeline (load, chunk, embed, store)
 - [ ] retrieval + answer with sources
 - [ ] cli with debug mode
