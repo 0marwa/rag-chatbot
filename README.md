@@ -46,8 +46,6 @@ no code changes needed. wanna use openai instead of groq? cool. wanna run everyt
 
 ## getting started
 
-(coming once the code's actually here, hang tight)
-
 ```bash
 # clone it
 git clone <this-repo>
@@ -58,11 +56,19 @@ pip install -r requirements.txt
 
 # add your keys
 cp .env.example .env
-# then open .env and paste your key
+# open .env and paste your groq api key
 
 # drop your documents in data/
-# then run the cli
-python -m src.cli
+cp your-doc.txt data/
+
+# ingest your docs (run once, or again when docs change)
+python -m src.cli ingest
+
+# start chatting
+python -m src.cli chat
+
+# want to see what chunks the model actually saw?
+python -m src.cli chat --debug
 ```
 
 ## structure
@@ -88,7 +94,7 @@ data/           drop your context docs here
 - [x] vector store (chroma, persists to disk, cosine similarity search)
 - [x] loader (reads txt/md from data/) + chunker (overlapping chunks from config)
 - [x] rag pipeline (ingest: load, chunk, embed, store / ask: retrieve top-k, inject context, return answer + sources)
-- [ ] cli with debug mode
+- [x] cli (ingest command + chat loop with --debug flag)
 - [ ] fastapi layer
 - [ ] react + next.js frontend
 
