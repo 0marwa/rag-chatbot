@@ -19,7 +19,3 @@ data/*
 # os junk
 .DS_Store
 
-# claude agent + local config, keep out of the repo
-.claude/
-CLAUDE.md
-MEMORY.md
