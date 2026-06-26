@@ -27,7 +27,7 @@ good retrieval. if the right chunk never gets pulled, the model has nothing to w
 - local embeddings via sentence-transformers (free, no api key, local)
 - chroma for the vector store (lives on disk, no server)
 - fastapi for the api layer (POST /ingest, POST /ask)
-- cli first. react + next.js ui comes later
+- cli first, react + next.js ui in `frontend/`
 
 ### swapping models
 
@@ -67,6 +67,14 @@ python -m src.cli chat --debug
 uvicorn src.api:app --reload
 # POST /ingest  -> ingests docs from data/
 # POST /ask     -> body: {"question": "your question"}
+# POST /upload  -> multipart file upload, saves to data/ and auto-ingests
+
+# frontend (separate terminal)
+cd frontend
+cp .env.local.example .env.local   # edit if your api runs elsewhere
+npm install
+npm run dev
+# open http://localhost:3000
 ```
 
 ### structure
@@ -81,8 +89,10 @@ src/
   llm.py        talk to the llm (swappable provider)
   rag.py        ties it all together: ingest docs + answer questions
   cli.py        terminal chat to test it out
-  api.py        fastapi app (POST /ingest, POST /ask)
+  api.py        fastapi app (POST /ingest, POST /ask, POST /upload)
 data/           drop your context docs here
+frontend/       next.js chat ui
+  app/page.js   main chat component
 ```
 
 ### roadmap
@@ -95,7 +105,7 @@ data/           drop your context docs here
 - [x] rag pipeline (ingest: load, chunk, embed, store / ask: retrieve top-k, inject context, return answer + sources)
 - [x] cli (ingest command + chat loop with --debug flag)
 - [x] fastapi layer (POST /ingest, POST /ask)
-- [ ] react + next.js frontend
+- [x] react + next.js frontend (terminal look, drag-and-drop upload, pink accents, shows sources)
 
 ### notes
 
