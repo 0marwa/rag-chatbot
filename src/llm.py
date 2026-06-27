@@ -40,4 +40,7 @@ class GroqProvider(LLMProvider):
 def get_llm() -> LLMProvider:
     if settings.llm_provider == "groq":
         return GroqProvider()
+    if settings.llm_provider == "gemini":
+        from src.llm_gemini import GeminiProvider
+        return GeminiProvider()
     raise ValueError(f"unknown llm provider: {settings.llm_provider}")
