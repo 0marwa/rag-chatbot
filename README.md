@@ -20,14 +20,20 @@ good retrieval. if the right chunk never gets pulled, the model has nothing to w
 - returning sources with every answer
 - zero internet access for the model 
 
+### live demo
+
+- frontend: https://rag-chatbot-seven-tan.vercel.app
+- backend: https://rag-chatbot-production-f31f.up.railway.app
+
 ### stack
 
 - python
 - groq for the llm by default (free tier is solid and fast). swappable though
 - local embeddings via sentence-transformers (free, no api key, local)
-- chroma for the vector store (lives on disk, no server)
-- fastapi for the api layer (POST /ingest, POST /ask)
-- cli first, react + next.js ui in `frontend/`
+- supabase pgvector for the vector store (session-isolated, hosted)
+- supabase storage for uploaded files
+- fastapi for the api layer, deployed on railway
+- react + next.js ui in `frontend/`, deployed on vercel
 
 ### swapping models
 
@@ -111,6 +117,7 @@ frontend/       next.js chat ui
 - [x] gemini provider: set `LLM_PROVIDER=gemini` + `GEMINI_API_KEY` in .env to swap llm
 - [x] per-user sessions: frontend generates a uuid, scopes uploads and retrieval per user via `X-Session-Id` header
 - [x] supabase storage for file uploads + supabase pgvector for vector search (replaces local chroma)
+- [x] deployment: backend on railway, frontend on vercel
 
 ### notes
 
