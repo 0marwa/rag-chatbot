@@ -82,7 +82,7 @@ npm run dev
 ```
 src/
   config.py     pick your providers, read the .env
-  loader.py     read documents from the data folder
+  loader.py     read documents from the data folder (txt, md, pdf)
   chunker.py    split text into chunks
   embedder.py   turn text into vectors (swappable provider)
   store.py      chroma wrapper for saving and searching vectors
@@ -107,6 +107,7 @@ frontend/       next.js chat ui
 - [x] fastapi layer (POST /ingest, POST /ask)
 - [x] react + next.js frontend (terminal look, drag-and-drop upload, pink accents, shows sources)
 - [x] dedup: ingest skips files already in chroma, so re-uploading or re-running ingest doesn't create duplicate chunks
+- [x] pdf support: loader handles .pdf files (text-based, no OCR)
 
 ### notes
 
