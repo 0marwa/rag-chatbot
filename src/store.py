@@ -27,6 +27,9 @@ class VectorStore:
         )
         return {row["source"] for row in resp.data}
 
+    def delete_session(self) -> None:
+        _client.table("documents").delete().eq("session_id", self.session_id).execute()
+
     def search(self, query_vec: list[float], top_k: int, threshold: float) -> list[dict]:
         # pgvector rpc for cosine similarity search
         resp = _client.rpc(
