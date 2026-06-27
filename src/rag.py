@@ -13,21 +13,14 @@ def ingest(data_dir: str = "data") -> int:
         print(f"no supported files found in {data_dir}/")
         return 0
 
-    store = VectorStore()
-    already_ingested = store.get_sources()
-
-    # skip files already in chroma
-    new_docs = [d for d in docs if d["filename"] not in already_ingested]
-    if not new_docs:
-        return 0
-
-    chunks = chunk_docs(new_docs)
+    chunks = chunk_docs(docs)
     texts = [c["text"] for c in chunks]
     sources = [c["source"] for c in chunks]
 
     embedder = get_embedder()
     embeddings = embedder.embed(texts)
 
+    store = VectorStore()
     store.add(texts, embeddings, sources)
     return len(chunks)
 

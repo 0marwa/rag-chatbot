@@ -20,14 +20,6 @@ class VectorStore:
         metadatas = [{"source": s} for s in sources]
         self.col.add(documents=chunks, embeddings=embeddings, ids=ids, metadatas=metadatas)
 
-    def get_sources(self) -> set[str]:
-        """return all unique source filenames already in the collection."""
-        if self.col.count() == 0:
-            return set()
-        # get all metadata without fetching embeddings or documents
-        result = self.col.get(include=["metadatas"])
-        return {m["source"] for m in result["metadatas"] if "source" in m}
-
     def search(self, query_vec: list[float], top_k: int, threshold: float) -> list[dict]:
         if self.col.count() == 0:
             return []
