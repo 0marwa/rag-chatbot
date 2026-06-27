@@ -6,7 +6,7 @@ google-genai
 sentence-transformers
 
 # vector store
-chromadb
+supabase
 
 # config
 python-dotenv

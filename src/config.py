@@ -35,8 +35,10 @@ class Settings:
     top_k: int = int(_get("TOP_K", "4"))
     similarity_threshold: float = float(_get("SIMILARITY_THRESHOLD", "0.3"))
 
-    # where chroma persists
-    db_path: str = _get("DB_PATH", "chroma_db")
+    # supabase
+    supabase_url: str = _get("SUPABASE_URL", "")
+    supabase_service_role_key: str = _get("SUPABASE_SERVICE_ROLE_KEY", "")
+    supabase_bucket: str = _get("SUPABASE_BUCKET", "documents")
 
 
 settings = Settings()
