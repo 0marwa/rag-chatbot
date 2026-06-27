@@ -12,10 +12,10 @@ from src.loader import SUPPORTED
 
 app = FastAPI()
 
-# allow the next.js dev server to call the api
+# allow local dev and production frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=["http://localhost:3000", "https://rag-chatbot-seven-tan.vercel.app"],
     allow_methods=["*"],
     allow_headers=["*", "X-Session-Id"],
 )
