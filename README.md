@@ -1,6 +1,6 @@
 ## rag-chatbot
 
-little rag chatbot skeleton. feed it some documents & it answers questions using only those. no hallucinations.
+little rag chatbot skeleton. feed it some documents & it answers questions using only those.
 
 ### retrieval augmented generation workflow
 
@@ -106,6 +106,7 @@ frontend/       next.js chat ui
 - [x] cli (ingest command + chat loop with --debug flag)
 - [x] fastapi layer (POST /ingest, POST /ask)
 - [x] react + next.js frontend (terminal look, drag-and-drop upload, pink accents, shows sources)
+- [x] dedup: ingest skips files already in chroma, so re-uploading or re-running ingest doesn't create duplicate chunks
 
 ### notes
 
