@@ -21,6 +21,8 @@ class Settings:
     # llm
     groq_api_key: str = _get("GROQ_API_KEY", "")
     groq_model: str = _get("GROQ_MODEL", "llama-3.3-70b-versatile")
+    gemini_api_key: str = _get("GEMINI_API_KEY", "")
+    gemini_model: str = _get("GEMINI_MODEL", "gemini-2.0-flash")
 
     # embeddings
     embedding_model: str = _get("EMBEDDING_MODEL", "all-MiniLM-L6-v2")

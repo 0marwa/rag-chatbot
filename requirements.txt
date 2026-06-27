@@ -1,5 +1,6 @@
 # llm providers (add more as you need them)
 groq
+google-genai
 
 # embeddings (local, free, no key)
 sentence-transformers
