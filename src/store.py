@@ -4,11 +4,11 @@ from src.config import settings
 
 
 class VectorStore:
-    def __init__(self) -> None:
+    def __init__(self, session_id: str = "default") -> None:
         client = chromadb.PersistentClient(path=settings.db_path)
-        # get_or_create so re-running ingest doesn't blow up
+        # one collection per session so users don't see each other's docs
         self.col = client.get_or_create_collection(
-            name="docs",
+            name=f"docs_{session_id}",
             # chroma computes its own embeddings by default; we pass ours in
             metadata={"hnsw:space": "cosine"},
         )

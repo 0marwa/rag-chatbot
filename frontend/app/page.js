@@ -4,13 +4,27 @@ import { useState, useRef, useEffect } from 'react'
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
+function getSessionId() {
+  let id = localStorage.getItem('session_id')
+  if (!id) {
+    id = crypto.randomUUID()
+    localStorage.setItem('session_id', id)
+  }
+  return id
+}
+
 export default function Home() {
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const [dragOver, setDragOver] = useState(false)
   const [uploadStatus, setUploadStatus] = useState(null)
+  const [sessionId, setSessionId] = useState(null)
   const bottomRef = useRef(null)
+
+  useEffect(() => {
+    setSessionId(getSessionId())
+  }, [])
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -24,8 +38,8 @@ export default function Home() {
 
   async function uploadFile(file) {
     const ext = file.name.split('.').pop().toLowerCase()
-    if (!['txt', 'md'].includes(ext)) {
-      showStatus(`error: only .txt and .md files supported`)
+    if (!['txt', 'md', 'pdf'].includes(ext)) {
+      showStatus(`error: only .txt, .md and .pdf files supported`)
       return
     }
 
@@ -34,7 +48,11 @@ export default function Home() {
     form.append('file', file)
 
     try {
-      const res = await fetch(`${API}/upload`, { method: 'POST', body: form })
+      const res = await fetch(`${API}/upload`, {
+        method: 'POST',
+        headers: { 'X-Session-Id': sessionId },
+        body: form,
+      })
       const data = await res.json()
       if (!res.ok) showStatus(`error: ${data.detail}`)
       else showStatus(`${file.name} uploaded -- ${data.chunks_stored} chunks stored`)
@@ -62,7 +80,7 @@ export default function Home() {
     try {
       const res = await fetch(`${API}/ask`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-Session-Id': sessionId },
         body: JSON.stringify({ question: q }),
       })
       const data = await res.json()
@@ -95,7 +113,7 @@ export default function Home() {
       {/* header */}
       <div style={styles.header}>
         <span style={styles.headerTitle}>rag-chatbot<span style={styles.cursor}>_</span></span>
-        <span style={styles.headerHint}>drag a .txt or .md file anywhere to upload</span>
+        <span style={styles.headerHint}>drag a .txt, .md or .pdf file anywhere to upload</span>
       </div>
 
       {/* upload status */}

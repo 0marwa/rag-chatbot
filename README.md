@@ -109,6 +109,7 @@ frontend/       next.js chat ui
 - [x] dedup: ingest skips files already in chroma, so re-uploading or re-running ingest doesn't create duplicate chunks
 - [x] pdf support: loader handles .pdf files (text-based, no OCR)
 - [x] gemini provider: set `LLM_PROVIDER=gemini` + `GEMINI_API_KEY` in .env to swap llm
+- [x] per-user sessions: frontend generates a uuid, scopes uploads and retrieval per user via `X-Session-Id` header
 
 ### notes
 

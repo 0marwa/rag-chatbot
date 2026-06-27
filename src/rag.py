@@ -6,14 +6,14 @@ from src.loader import load_docs
 from src.store import VectorStore
 
 
-def ingest(data_dir: str = "data") -> int:
+def ingest(data_dir: str = "data", session_id: str = "default") -> int:
     """load docs, chunk, embed, store. returns number of chunks stored."""
     docs = load_docs(data_dir)
     if not docs:
         print(f"no supported files found in {data_dir}/")
         return 0
 
-    store = VectorStore()
+    store = VectorStore(session_id=session_id)
     already_ingested = store.get_sources()
 
     # skip files already in chroma
@@ -32,12 +32,12 @@ def ingest(data_dir: str = "data") -> int:
     return len(chunks)
 
 
-def ask(question: str, debug: bool = False) -> dict:
+def ask(question: str, session_id: str = "default", debug: bool = False) -> dict:
     """embed question, retrieve top-k chunks, ask llm. returns {answer, sources}."""
     embedder = get_embedder()
     query_vec = embedder.embed_one(question)
 
-    store = VectorStore()
+    store = VectorStore(session_id=session_id)
     results = store.search(query_vec, top_k=settings.top_k, threshold=settings.similarity_threshold)
 
     if not results:
