@@ -9,6 +9,7 @@ from supabase import create_client
 from src.config import settings
 from src.rag import ask, ingest
 from src.loader import SUPPORTED
+from src.store import VectorStore
 
 app = FastAPI()
 
@@ -79,3 +80,16 @@ async def upload_file(file: UploadFile = File(...), x_session_id: str = Header(d
         count = ingest(data_dir=tmp, session_id=x_session_id)
 
     return {"filename": file.filename, "chunks_stored": count}
+
+
+@app.delete("/session")
+def reset_session(x_session_id: str = Header(default="default")):
+    # delete all vectors for this session
+    VectorStore(x_session_id).delete_session()
+
+    # delete all files in storage under session_id/
+    files = _storage.from_(settings.supabase_bucket).list(x_session_id)
+    for f in files:
+        _storage.from_(settings.supabase_bucket).remove([f"{x_session_id}/{f['name']}"])
+
+    return {"status": "ok"}

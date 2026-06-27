@@ -36,6 +36,23 @@ export default function Home() {
     setTimeout(() => setUploadStatus(null), 4000)
   }
 
+  async function resetSession() {
+    try {
+      await fetch(`${API}/session`, {
+        method: 'DELETE',
+        headers: { 'X-Session-Id': sessionId },
+      })
+    } catch {
+      // best effort -- clear locally even if backend call fails
+    }
+    localStorage.removeItem('session_id')
+    const newId = crypto.randomUUID()
+    localStorage.setItem('session_id', newId)
+    setSessionId(newId)
+    setMessages([])
+    showStatus('session cleared')
+  }
+
   async function uploadFile(file) {
     const ext = file.name.split('.').pop().toLowerCase()
     if (!['txt', 'md', 'pdf'].includes(ext)) {
@@ -113,7 +130,10 @@ export default function Home() {
       {/* header */}
       <div style={styles.header}>
         <span style={styles.headerTitle}>rag-chatbot<span style={styles.cursor}>_</span></span>
-        <span style={styles.headerHint}>drag a .txt, .md or .pdf file anywhere to upload</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <span style={styles.headerHint}>drag a .txt, .md or .pdf file anywhere to upload</span>
+          <button onClick={resetSession} style={styles.resetBtn}>reset</button>
+        </div>
       </div>
 
       {/* upload status */}
@@ -301,6 +321,16 @@ const styles = {
     borderRadius: '3px',
     padding: '6px 14px',
     fontSize: '12px',
+    letterSpacing: '0.05em',
+  },
+  resetBtn: {
+    background: 'transparent',
+    color: '#555',
+    border: '1px solid #2e2e2e',
+    borderRadius: '3px',
+    padding: '4px 10px',
+    fontSize: '11px',
+    cursor: 'pointer',
     letterSpacing: '0.05em',
   },
 }
