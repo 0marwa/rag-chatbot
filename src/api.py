@@ -1,30 +1,26 @@
 import os
-import shutil
+import tempfile
 
 from fastapi import FastAPI, HTTPException, UploadFile, File, Header
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from supabase import create_client
 
+from src.config import settings
 from src.rag import ask, ingest
 from src.loader import SUPPORTED
 
 app = FastAPI()
 
-# allow the next.js dev server to call the api
+# allow local dev and production frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=["http://localhost:3000", "https://rag-chatbot-seven-tan.vercel.app"],
     allow_methods=["*"],
     allow_headers=["*", "X-Session-Id"],
 )
 
-BASE_DATA_DIR = "data"
-
-
-def _session_data_dir(session_id: str) -> str:
-    path = os.path.join(BASE_DATA_DIR, session_id)
-    os.makedirs(path, exist_ok=True)
-    return path
+_storage = create_client(settings.supabase_url, settings.supabase_service_role_key).storage
 
 
 class AskRequest(BaseModel):
@@ -33,10 +29,22 @@ class AskRequest(BaseModel):
 
 @app.post("/ingest")
 def ingest_docs(x_session_id: str = Header(default="default")):
-    data_dir = _session_data_dir(x_session_id)
-    count = ingest(data_dir=data_dir, session_id=x_session_id)
+    # list files in the session's storage folder and ingest them
+    files = _storage.from_(settings.supabase_bucket).list(x_session_id)
+    if not files:
+        raise HTTPException(status_code=400, detail="no files found for this session")
+
+    # download each file to a temp dir and ingest
+    with tempfile.TemporaryDirectory() as tmp:
+        for f in files:
+            path = f"{x_session_id}/{f['name']}"
+            data = _storage.from_(settings.supabase_bucket).download(path)
+            with open(os.path.join(tmp, f["name"]), "wb") as out:
+                out.write(data)
+        count = ingest(data_dir=tmp, session_id=x_session_id)
+
     if count == 0:
-        raise HTTPException(status_code=400, detail="no supported files found or all already ingested")
+        raise HTTPException(status_code=400, detail="all files already ingested")
     return {"chunks_stored": count}
 
 
@@ -53,10 +61,21 @@ async def upload_file(file: UploadFile = File(...), x_session_id: str = Header(d
     if ext not in SUPPORTED:
         raise HTTPException(status_code=400, detail=f"unsupported file type. allowed: {', '.join(SUPPORTED)}")
 
-    data_dir = _session_data_dir(x_session_id)
-    dest = os.path.join(data_dir, file.filename)
-    with open(dest, "wb") as f:
-        shutil.copyfileobj(file.file, f)
+    contents = await file.read()
 
-    count = ingest(data_dir=data_dir, session_id=x_session_id)
+    # store under session_id/filename so sessions are isolated in the bucket
+    storage_path = f"{x_session_id}/{file.filename}"
+    _storage.from_(settings.supabase_bucket).upload(
+        path=storage_path,
+        file=contents,
+        file_options={"content-type": "application/octet-stream", "upsert": "true"},
+    )
+
+    # ingest directly from the uploaded bytes via a temp file
+    with tempfile.TemporaryDirectory() as tmp:
+        tmp_path = os.path.join(tmp, file.filename)
+        with open(tmp_path, "wb") as f:
+            f.write(contents)
+        count = ingest(data_dir=tmp, session_id=x_session_id)
+
     return {"filename": file.filename, "chunks_stored": count}
