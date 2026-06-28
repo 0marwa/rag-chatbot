@@ -2,32 +2,15 @@
 
 little rag chatbot skeleton. feed it some documents & it answers questions using only those.
 
-### retrieval augmented generation workflow
-
-1. chop the given docs into chunks
-2. turn each chunk into a vector (a list of numbers to capture its meaning)
-3. store vectors in database
-4. when you ask a question, turn the question into a vector too
-5. grab the chunks closest to your question within given threshold
-6. paste resulting chunks into the prompt and let the llm answer using only them
-
-### why it doesn't hallucinate (in theory)
-
-good retrieval. if the right chunk never gets pulled, the model has nothing to work with and starts filling gaps on its own. so this skeleton leans hard on:
-
-- showing the retrieved chunks (debug mode) so you can actually see what the model saw
-- a similarity threshold so junk matches get dropped
-- returning sources with every answer
-- zero internet access for the model 
-
 ### stack
 
 - python
 - groq for the llm by default (free tier is solid and fast). swappable though
 - local embeddings via sentence-transformers (free, no api key, local)
-- chroma for the vector store (lives on disk, no server)
-- fastapi for the api layer (POST /ingest, POST /ask)
-- cli first, react + next.js ui in `frontend/`
+- supabase pgvector for the vector store (session-isolated, hosted)
+- supabase storage for uploaded files
+- fastapi for the api layer, deployed on railway
+- react + next.js ui in `frontend/`, deployed on vercel
 
 ### swapping models
 
@@ -95,23 +78,6 @@ frontend/       next.js chat ui
   app/page.js   main chat component
 ```
 
-### roadmap
-
-- [x] config (load .env, pick providers, hold settings)
-- [x] llm provider (groq, swappable, answers from context only)
-- [x] embedding provider (local sentence-transformers, swappable)
-- [x] vector store (supabase pgvector, cosine similarity search, session-isolated)
-- [x] loader (reads txt/md from data/) + chunker (overlapping chunks from config)
-- [x] rag pipeline (ingest: load, chunk, embed, store / ask: retrieve top-k, inject context, return answer + sources)
-- [x] cli (ingest command + chat loop with --debug flag)
-- [x] fastapi layer (POST /ingest, POST /ask)
-- [x] react + next.js frontend (terminal look, drag-and-drop upload, pink accents, shows sources)
-- [x] dedup: ingest skips files already in chroma, so re-uploading or re-running ingest doesn't create duplicate chunks
-- [x] pdf support: loader handles .pdf files (text-based, no OCR)
-- [x] gemini provider: set `LLM_PROVIDER=gemini` + `GEMINI_API_KEY` in .env to swap llm
-- [x] per-user sessions: frontend generates a uuid, scopes uploads and retrieval per user via `X-Session-Id` header
-- [x] supabase storage for file uploads + supabase pgvector for vector search (replaces local chroma)
-
 ### notes
 
-this is a skeleton, not a prod-ready thingie :p 
+meow  
