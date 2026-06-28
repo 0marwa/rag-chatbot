@@ -21,6 +21,7 @@ export default function Home() {
   const [uploadStatus, setUploadStatus] = useState(null)
   const [sessionId, setSessionId] = useState(null)
   const bottomRef = useRef(null)
+  const fileInputRef = useRef(null)
 
   useEffect(() => {
     setSessionId(getSessionId())
@@ -34,6 +35,23 @@ export default function Home() {
     setUploadStatus(msg)
     // clear after 4s so it doesn't sit there forever
     setTimeout(() => setUploadStatus(null), 4000)
+  }
+
+  async function resetSession() {
+    try {
+      await fetch(`${API}/session`, {
+        method: 'DELETE',
+        headers: { 'X-Session-Id': sessionId },
+      })
+    } catch {
+      // best effort -- clear locally even if backend call fails
+    }
+    localStorage.removeItem('session_id')
+    const newId = crypto.randomUUID()
+    localStorage.setItem('session_id', newId)
+    setSessionId(newId)
+    setMessages([])
+    showStatus('session cleared')
   }
 
   async function uploadFile(file) {
@@ -66,6 +84,13 @@ export default function Home() {
     setDragOver(false)
     const file = e.dataTransfer.files[0]
     if (file) uploadFile(file)
+  }
+
+  function handleFileInputChange(e) {
+    const file = e.target.files[0]
+    if (file) uploadFile(file)
+    // reset so picking the same file again still triggers onChange
+    e.target.value = ''
   }
 
   async function handleSend(e) {
@@ -150,13 +175,13 @@ export default function Home() {
         {loading && (
           <div style={styles.messageRow}>
             <span style={{ ...styles.prompt, color: '#aaa' }}>$</span>
-            <p style={{ ...styles.text, color: '#666' }}>thinking...</p>
+            <p style={{ ...styles.text, color: '#999' }}>thinking...</p>
           </div>
         )}
         <div ref={bottomRef} />
       </div>
 
-      {/* input */}
+      {/* input row -- upload, reset, and send all live here now */}
       <form onSubmit={handleSend} style={styles.form}>
         <span style={styles.inputPrompt}>{'>'}</span>
         <input
@@ -167,6 +192,30 @@ export default function Home() {
           disabled={loading}
           autoFocus
         />
+        {/* hidden file input, triggered by upload button */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".txt,.md,.pdf"
+          style={{ display: 'none' }}
+          onChange={handleFileInputChange}
+        />
+        <button
+          type="button"
+          onClick={() => fileInputRef.current?.click()}
+          style={styles.uploadBtn}
+          title="upload a file"
+        >
+          upload
+        </button>
+        <button
+          type="button"
+          onClick={resetSession}
+          style={styles.resetBtn}
+          title="clear session"
+        >
+          reset
+        </button>
         <button type="submit" style={{
           ...styles.sendBtn,
           opacity: loading || !input.trim() ? 0.4 : 1,
@@ -222,11 +271,11 @@ const styles = {
     animation: 'blink 1.2s step-end infinite',
   },
   headerHint: {
-    fontSize: '11px',
-    color: '#444',
+    fontSize: '13px',
+    color: '#999',
   },
   uploadStatus: {
-    fontSize: '11px',
+    fontSize: '13px',
     color: '#f0a0b8',
     padding: '6px 0',
     borderBottom: '1px solid #2e2e2e',
@@ -240,8 +289,8 @@ const styles = {
     gap: '10px',
   },
   placeholder: {
-    color: '#3a3a3a',
-    fontSize: '13px',
+    color: '#888',
+    fontSize: '15px',
     margin: '40px 0 0',
   },
   messageRow: {
@@ -250,7 +299,7 @@ const styles = {
     alignItems: 'flex-start',
   },
   prompt: {
-    fontSize: '14px',
+    fontSize: '16px',
     lineHeight: 1.6,
     userSelect: 'none',
     flexShrink: 0,
@@ -260,15 +309,15 @@ const styles = {
   },
   text: {
     margin: 0,
-    fontSize: '14px',
+    fontSize: '16px',
     lineHeight: 1.6,
     whiteSpace: 'pre-wrap',
     color: '#d0d0d0',
   },
   sources: {
     margin: '6px 0 0',
-    fontSize: '11px',
-    color: '#555',
+    fontSize: '13px',
+    color: '#999',
   },
   sourcesLabel: {
     color: '#f0a0b8',
@@ -282,7 +331,7 @@ const styles = {
   },
   inputPrompt: {
     color: '#f0a0b8',
-    fontSize: '14px',
+    fontSize: '16px',
     userSelect: 'none',
   },
   input: {
@@ -291,7 +340,7 @@ const styles = {
     color: '#e0e0e0',
     border: 'none',
     outline: 'none',
-    fontSize: '14px',
+    fontSize: '16px',
     caretColor: '#f0a0b8',
   },
   sendBtn: {
@@ -300,7 +349,27 @@ const styles = {
     border: '1px solid #f0a0b8',
     borderRadius: '3px',
     padding: '6px 14px',
-    fontSize: '12px',
+    fontSize: '13px',
+    letterSpacing: '0.05em',
+  },
+  uploadBtn: {
+    background: 'transparent',
+    color: '#ccc',
+    border: '1px solid #555',
+    borderRadius: '3px',
+    padding: '6px 10px',
+    fontSize: '13px',
+    cursor: 'pointer',
+    letterSpacing: '0.05em',
+  },
+  resetBtn: {
+    background: 'transparent',
+    color: '#ccc',
+    border: '1px solid #555',
+    borderRadius: '3px',
+    padding: '6px 10px',
+    fontSize: '13px',
+    cursor: 'pointer',
     letterSpacing: '0.05em',
   },
 }
