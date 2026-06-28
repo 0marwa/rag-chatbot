@@ -2,9 +2,6 @@
 groq
 google-genai
 
-# embeddings (local, free, no key)
-sentence-transformers
-
 # vector store
 supabase
 
