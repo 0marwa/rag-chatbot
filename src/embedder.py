@@ -10,26 +10,27 @@ class EmbeddingProvider:
         return self.embed([text])[0]
 
 
-class TogetherEmbedder(EmbeddingProvider):
-    """calls together.ai embeddings api -- no local model, no ram spike."""
-    _BASE = "https://api.together.xyz/v1/embeddings"
+class HFEmbedder(EmbeddingProvider):
+    """calls huggingface inference api -- no local model, no ram spike. free tier, no card needed."""
+    # old api-inference.huggingface.co host is dead, hf moved to this router
+    _BASE = "https://router.huggingface.co/hf-inference/models/"
+    _SUFFIX = "/pipeline/feature-extraction"
 
     def __init__(self) -> None:
         import requests
         self._requests = requests
-        self._key = settings.together_api_key
+        self._key = settings.hf_token
         self._model = settings.embedding_model
 
     def embed(self, texts: list[str]) -> list[list[float]]:
         resp = self._requests.post(
-            self._BASE,
-            headers={"Authorization": f"Bearer {self._key}", "Content-Type": "application/json"},
-            json={"model": self._model, "input": texts},
+            self._BASE + self._model + self._SUFFIX,
+            headers={"Authorization": f"Bearer {self._key}"},
+            json={"inputs": texts, "options": {"wait_for_model": True}},
             timeout=30,
         )
         resp.raise_for_status()
-        data = resp.json()["data"]
-        return [item["embedding"] for item in sorted(data, key=lambda x: x["index"])]
+        return resp.json()
 
 
 class LocalEmbedder(EmbeddingProvider):
@@ -42,8 +43,8 @@ class LocalEmbedder(EmbeddingProvider):
 
 
 def get_embedder() -> EmbeddingProvider:
-    if settings.embedding_provider == "together":
-        return TogetherEmbedder()
+    if settings.embedding_provider == "huggingface":
+        return HFEmbedder()
     if settings.embedding_provider == "local":
         return LocalEmbedder()
     raise ValueError(f"unknown embedding provider: {settings.embedding_provider}")

@@ -6,7 +6,7 @@ little rag chatbot skeleton. feed it some documents & it answers questions using
 
 - python
 - groq for the llm by default (free tier is solid and fast). swappable though
-- embeddings via together.ai api by default (keeps ram low for deployment). sentence-transformers still available for local dev
+- embeddings via huggingface inference api by default (keeps ram low for deployment, free tier). sentence-transformers still available for local dev
 - supabase pgvector for the vector store (session-isolated, hosted)
 - supabase storage for uploaded files
 - fastapi for the api layer, deployed on railway
