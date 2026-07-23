@@ -16,7 +16,7 @@ def _get(key: str, default: str) -> str:
 class Settings:
     # which providers to use
     llm_provider: str = _get("LLM_PROVIDER", "groq")
-    embedding_provider: str = _get("EMBEDDING_PROVIDER", "together")
+    embedding_provider: str = _get("EMBEDDING_PROVIDER", "huggingface")
 
     # llm
     groq_api_key: str = _get("GROQ_API_KEY", "")
@@ -24,9 +24,9 @@ class Settings:
     gemini_api_key: str = _get("GEMINI_API_KEY", "")
     gemini_model: str = _get("GEMINI_MODEL", "gemini-2.0-flash")
 
-    # embeddings -- together.ai api (nomic-embed-text-v1.5 = 768 dims, api-based, no local model)
-    together_api_key: str = _get("TOGETHER_API_KEY", "")
-    embedding_model: str = _get("EMBEDDING_MODEL", "nomic-ai/nomic-embed-text-v1.5")
+    # embeddings -- huggingface inference api, free tier, no card needed, same model as local (384 dims)
+    hf_token: str = _get("HF_TOKEN", "")
+    embedding_model: str = _get("EMBEDDING_MODEL", "sentence-transformers/all-MiniLM-L6-v2")
 
     # chunking
     chunk_size: int = int(_get("CHUNK_SIZE", "500"))
